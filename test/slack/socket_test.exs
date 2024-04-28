@@ -29,6 +29,55 @@ defmodule Slack.SocketTest do
   }
   """
 
+  @message_action """
+  {
+    "envelope_id": "eid-789",
+    "payload": {
+        "type": "message_action",
+        "team": {
+            "id": "",
+            "domain": ""
+        },
+        "user": {
+            "id": "",
+            "username": "",
+            "team_id": "",
+            "name": ""
+        },
+        "channel": {
+            "id": "",
+            "name": ""
+        },
+        "callback_id": "message_action_callback_id",
+        "message": {
+            "user": "user_id",
+            "type": "message",
+            "text": "Hello world!",
+            "team": "team_id",
+            "blocks": [
+                {
+                    "type": "rich_text",
+                    "block_id": "block_id",
+                    "elements": [
+                        {
+                            "type": "rich_text_section",
+                            "elements": [
+                                {
+                                    "type": "text",
+                                    "text": "Hello world!"
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        }
+    },
+    "type": "interactive",
+    "accepts_response_payload": false
+  }
+  """
+
   @bot %Slack.Bot{
     id: "bot-123-ABC",
     module: TestBot,
@@ -70,5 +119,12 @@ defmodule Slack.SocketTest do
 
     assert {:reply, {:text, ~S({"envelope_id":"eid-567"})}, %{}} =
              Slack.Socket.handle_frame({:text, @slash_command}, %{})
+  end
+
+  test "socket can handle a message action" do
+    stub(Slack.API)
+
+    assert {:reply, {:text, ~S({"envelope_id":"eid-789"})}, %{}} =
+             Slack.Socket.handle_frame({:text, @message_action}, %{})
   end
 end
