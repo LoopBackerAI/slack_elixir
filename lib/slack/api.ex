@@ -57,6 +57,24 @@ defmodule Slack.API do
     end
   end
 
+  @spec post_json(String.t(), String.t(), map() | keyword()) :: {:ok, map()} | {:error, term()}
+  def post_json(endpoint, token, args \\ %{}) do
+    result =
+      Req.post(client(token),
+        url: endpoint,
+        json: args
+      )
+
+    case result do
+      {:ok, %{body: %{"ok" => true} = body}} ->
+        {:ok, body}
+
+      {_, error} ->
+        Logger.error(inspect(error))
+        {:error, error}
+    end
+  end
+
   @doc """
   GET pages from Slack API as a `Stream`.
 
